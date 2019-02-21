@@ -76,6 +76,7 @@ router.post('/getdetails',function(req,res){
      a.three={name:athreea,branch:athreeb,year:athreec};
      a.four={name:afoura,branch:afourb,year:afourc};
      a.idea=idi;
+     a.isreg=true;
      a.save().then(()=>{
   console.log(a);
 

@@ -1,10 +1,19 @@
 var express=require('express')
 var router=express.Router();
-var user=require('../models/user')
+
 var passport=require('passport')
+
+
 var LocalStrategy=require('passport-local').Strategy
 
 var path = require('path');
+
+
+var mongo = require('mongodb');
+var mongoose=require ('mongoose')
+mongoose.connect("mongodb://localhost:27017/logg2", { useNewUrlParser: true });
+var user=require('../models/user')
+
 
 
 
@@ -54,25 +63,40 @@ if(errors){
 
 }
 else{
+
+	var t=username;
+	console.log(t);
+	console.log("t is");
+	user.findOne({username:t},function(err,x){
+		console.log(x)
+		if(x){
+			console.log("duplicate")
+			res.sendFile(path.join(__dirname, '../public', 'oops.html'));
+
+		}
+		else{
+			var newUser=new user({
+				name:name,
+				username:username,
+				password:password,
+				email:email,
+				phoneno:phoneno,
+				isreg:false,
+			})
+			console.log(newUser)
+			
+			user.createUser(newUser,function(err,user){
+			if(err)throw err;
+			console.log(user);
+			
+			req.flash('success_msg','You are registered and now can Log-In!')
+				res.redirect('/users/login')
+			
+			})
+		}
+	})
    
-var newUser=new user({
-    name:name,
-    username:username,
-    password:password,
-	email:email,
-	phoneno:phoneno,
-	isreg:false,
-})
-console.log(newUser)
 
-user.createUser(newUser,function(err,user){
-if(err)throw err;
-console.log(user);
-
-req.flash('success_msg','You are registered and now can Log-In!')
-    res.redirect('/users/login')
-
-})
 }
 
 })
@@ -110,8 +134,9 @@ passport.deserializeUser(function (id, done) {
 
 router.get('/profile',function(req,res){
 
-	res.render('index.ejs')
 
+	res.render('index.ejs')
+	
 })
 
 router.post('/login',passport.authenticate('local', { successRedirect: '/users/profile', failureRedirect: '/users/login', failureFlash: true }),

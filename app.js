@@ -23,8 +23,8 @@ mongoose.connect(
   function() {
     console.log("connect");
     var admin = new user({
-      username: "hackmsitiosd20506",
-      password: "moriartyisback"
+      username: "--AdminUsername--",
+      password: "--AdminPassword--",
     });
 
     bcrypt.genSalt(10, function(err, salt) {
