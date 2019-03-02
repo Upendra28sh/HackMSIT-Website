@@ -1,27 +1,21 @@
-var express=require('express')
+var express = require("express");
 
- 
-
-var router=express.Router();
-var path = require('path');
-var mongo = require('mongodb');
-var mongoose=require ('mongoose')
+var router = express.Router();
+var path = require("path");
+var mongo = require("mongodb");
+var mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost:27017/logg2", { useNewUrlParser: true });
-var user=require('../models/user')
+var user = require("../models/user");
 
-
-
-
-var nodemailer = require('nodemailer');
+var nodemailer = require("nodemailer");
 
 var transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    user: '', ///enter your mail
-    pass: '' //enter password
+    user: "iosdmsit@gmail.com", ///enter your mail
+    pass: "" //enter password
   }
 });
-
 
 /*
 router.get('/',ensureAuth,function(req,res){
@@ -29,103 +23,84 @@ router.get('/',ensureAuth,function(req,res){
 })
 */
 
-router.get('/',function(req,res){
-    res.sendFile('index.html');
-    console.log("here")
-})
+router.get("/", function(req, res) {
+  res.sendFile("index.html");
+  console.log("here");
+});
 
+router.get("/log-in", ensureAuth, function(req, res) {
+  res.render("index.ejs");
+});
 
-router.get('/log-in',ensureAuth,function(req,res){
-    res.render('index.ejs');
-})
+router.get("/sign-in", function(req, res) {
+  res.sendFile(path.join(__dirname, "../public", "signup.html"));
+});
 
-router.get('/sign-in',function(req,res){
-    res.sendFile(path.join(__dirname, '../public', 'signup.html'));
-})
+router.post("/getdetails", function(req, res) {
+  console.log("gotcha");
 
+  var i = req.body.idofuser;
 
+  var aonea = req.body.ponen;
+  var aoneb = req.body.pones;
+  var aonec = req.body.poney;
 
-router.post('/getdetails',function(req,res){
-	
-    console.log("gotcha");
-    
-    var i=req.body.idofuser;
+  var atwoa = req.body.ptwon;
+  var atwob = req.body.ptwos;
+  var atwoc = req.body.ptwoy;
 
-  var aonea=req.body.ponen;
-  var aoneb=req.body.pones;
-  var aonec=req.body.poney;
+  var athreea = req.body.pthreen;
+  var athreeb = req.body.pthrees;
+  var athreec = req.body.pthreey;
 
-  var atwoa=req.body.ptwon;
-  var atwob=req.body.ptwos;
-  var atwoc=req.body.ptwoy;
+  var afoura = req.body.pfourn;
+  var afourb = req.body.pfours;
+  var afourc = req.body.pfoury;
+  var idi = req.body.idea;
 
-  var athreea=req.body.pthreen;
-  var athreeb=req.body.pthrees;
-  var athreec=req.body.pthreey;
+  user.findOne({ _id: i }, function(err, a) {
+    console.log(a);
 
-  var afoura=req.body.pfourn;
-  var afourb=req.body.pfours;
-  var afourc=req.body.pfoury;
-  var idi=req.body.idea;
+    a.one = { name: aonea, branch: aoneb, year: aonec };
+    a.two = { name: atwoa, branch: atwob, year: atwoc };
+    a.three = { name: athreea, branch: athreeb, year: athreec };
+    a.four = { name: afoura, branch: afourb, year: afourc };
+    a.idea = idi;
+    a.isreg = true;
+    a.save().then(() => {
+      console.log(a);
 
-    user.findOne({_id:i},function(err,a){
-        console.log(a);
-   
-     a.one={name:aonea,branch:aoneb,year:aonec};
-     a.two={name:atwoa,branch:atwob,year:atwoc};
-     a.three={name:athreea,branch:athreeb,year:athreec};
-     a.four={name:afoura,branch:afourb,year:afourc};
-     a.idea=idi;
-     a.isreg=true;
-     a.save().then(()=>{
-  console.log(a);
-
-  var mailOptions = {
-    from: '', //email
-    to: '',
-    subject: 'Participant details',
-    text: `participant one ${a.one.name}  ${a.one.branch} ${a.one.year}
+      var mailOptions = {
+        from: "iosdmsit@gmail.com", //email
+        to: "iosdmsit@gmail.com",
+        subject: "NEW TEAM Participant details",
+        text: `participant one ${a.one.name}  ${a.one.branch} ${a.one.year}
            participant two ${a.two.name}  ${a.two.branch} ${a.two.year}
            participant two ${a.three.name}  ${a.three.branch} ${a.three.year}
            participant two ${a.four.name}  ${a.four.branch} ${a.four.year}
     
     `
-    // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'        
-  };
-  
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
+        // html: '<h1>Hi Smartherd</h1><p>Your Messsage</p>'
+      };
+
+      transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
+    });
   });
 
+  res.sendFile(path.join(__dirname, "../public", "one.html"));
+});
 
-
-
-
-
-
-
-     })
-       
-     
-     
-    })
-
-    res.sendFile(path.join(__dirname, '../public', 'one.html'));
-
-})
-
-function ensureAuth(req,res,next){
-if(req.isAuthenticated()){
+function ensureAuth(req, res, next) {
+  if (req.isAuthenticated()) {
     return next();
-}
-else{
-    res.redirect('/users/login');
-}
-
-
+  } else {
+    res.redirect("/users/login");
+  }
 }
 module.exports = router;
